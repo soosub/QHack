@@ -30,19 +30,13 @@ def n_swaps(cnot):
 
     # QHACK #
 
-    print(cnot, type(cnot))
-    
-    dev = qml.device('forest.qvm', device=nx.Graph(graph))
+    i,j = cnot.wires
 
-    @qml.qnode(dev)
-    def circuit(i,j):
-        """Implements the Deutsch Jozsa algorithm."""
-        qml.CNOT(wires=[i,j])   
+    G = nx.Graph(graph)
+    path = nx.all_pairs_shortest_path_length(G) # This is a generator
+    dpath = {x[0]:x[1] for x in path}
 
-        return 'yes'
-
-    drawer = qml.draw(circuit)
-    print(drawer(cnot[0],cnot[1]))
+    return (dpath[i][j] - 1)*2
     # QHACK #
 
 
