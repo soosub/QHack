@@ -16,10 +16,12 @@ def binary_list(m, n):
         - (list(int)): Binary stored as a list of length n
     """
 
-    arr = []
     # QHACK #
-
-    # QHACK #
+    arr = np.zeros(n)
+    for i in range(n):
+        if m >= 2 ** (n - 1 - i):
+            arr[i] = 1
+            m -= 2 ** (n - 1 - i)
     return arr
 
 
@@ -37,7 +39,8 @@ def basis_states(n):
     arr = []
 
     # QHACK #
-
+    for i in range(2 ** n):
+        arr.append(binary_list(i, n))
     # QHACK #
 
     return arr
@@ -55,8 +58,21 @@ def is_particle_preserving(circuit, n):
         - (bool): True / False according to whether the input circuit preserves the number of particles or not
     """
 
-    # QHACK #
+    dev = qml.device("default.qubit", wires=n)
 
+    # QHACK #
+    for i in range(2 ** n):
+        input = basis_states(n)[i]
+        output = circuit(input)
+
+        input_excitations = np.sum(input)
+
+        for j, x in enumerate(output):
+            if x != 0:
+                output_excitations = np.sum(basis_states(n)[j])
+                if input_excitations != output_excitations:
+                    return False
+    return True
     # QHACK #
 
 
