@@ -17,18 +17,23 @@ def my_finite_diff_grad(params):
     Returns:
         - gradients (np.ndarray): the gradient w.r.t. each parameter
     """
+    delta = 1e-11
 
     gradients = np.zeros([len(params)])
+    print(gradients)
     for i in range(len(params)):
-        # QHACK # 
-
+        # QHACK #
+        gradients[i] = (
+            cost(params + delta / 2 * np.eye(1, len(params), i)[0])
+            - cost(params - delta / 2 * np.eye(1, len(params), i)[0])
+        ) / delta
         # QHACK #
 
     return gradients
 
 
 def variational_circuit(params):
-    """A layered variational circuit. The first layer comprises of x, y, and z rotations on wires
+    """A layered variational circuit. The first layer comprises of x, y, and z rotations on wire
     0, 1, and 2, respectively. The second layer is a ring of CNOT gates. The final layer comprises 
     of x, y, and z rotations on wires 0, 1, and 2, respectively.
     """
