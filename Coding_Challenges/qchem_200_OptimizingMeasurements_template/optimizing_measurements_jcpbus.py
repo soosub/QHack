@@ -45,6 +45,8 @@ def join_operators(op1, op2):
             arr.append(op2[i])
         else:
             arr.append(op1[i])
+
+    return arr
     # QHACK
 
 
@@ -87,10 +89,8 @@ def compression_ratio(obs_hamiltonian, final_solution):
     """
 
     # QHACK
-    print(obs_hamiltonian)
-    print(final_solution)
 
-    return len(final_solution) / len(obs_hamiltonian)
+    return 1 - len(final_solution) / len(obs_hamiltonian)
     # QHACK
 
 
