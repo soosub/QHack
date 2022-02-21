@@ -17,10 +17,9 @@ def my_finite_diff_grad(params):
     Returns:
         - gradients (np.ndarray): the gradient w.r.t. each parameter
     """
-    delta = 1e-11
+    delta = 1e-3
 
     gradients = np.zeros([len(params)])
-    print(gradients)
     for i in range(len(params)):
         # QHACK #
         gradients[i] = (
@@ -29,7 +28,7 @@ def my_finite_diff_grad(params):
         ) / delta
         # QHACK #
 
-    return gradients
+    return np.round(gradients, decimals=8)
 
 
 def variational_circuit(params):
