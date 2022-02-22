@@ -16,12 +16,14 @@ def givens_rotations(a, b, c, d):
     """
 
     # QHACK #
-    angles = []
-    angles.append(2 * np.arctan(np.sqrt((b ** 2 + c ** 2) / (a ** 2 + d ** 2))))
-    angles.append(2 * np.arctan(c / b))
-    angles.append(2 * np.arctan(d / a))
+    theta1 = 2 * np.arctan(np.sqrt((b ** 2 + c ** 2) / (a ** 2 + d ** 2)))
+    theta2 = 2 * np.arctan(c / b)
+    theta3 = 2 * np.arctan(d / a)
 
-    return angles
+    def f(x):
+        return x  # ((x + np.pi) % (2 * np.pi)) - np.pi
+
+    return [f(theta1), f(theta2), f(theta3)]
     # QHACK #
 
 
