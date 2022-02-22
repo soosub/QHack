@@ -121,8 +121,8 @@ def optimize(alpha, beta):
 
     # Initialize parameters, choose an optimization method and number of steps
     init_params = np.random.random(4) * 2 * np.pi
-    opt = qml.NesterovMomentumOptimizer()
-    steps = 500
+    opt = qml.NesterovMomentumOptimizer(stepsize=1)
+    steps = 100
 
     # QHACK #
 
