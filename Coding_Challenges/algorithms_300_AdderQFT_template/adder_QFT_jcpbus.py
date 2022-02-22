@@ -24,7 +24,7 @@ def qfunc_adder(m, wires):
     print("m_binary: ", m_binary)
 
     for i, x in enumerate(m_binary):
-        phase = (np.pi / 2 ** i) * x
+        phase = (np.pi) * (m / 2 ** (i))
         print(i, x, phase / (2 * np.pi))
         qml.RZ(phase, wires=0)
 
@@ -47,8 +47,7 @@ if __name__ == "__main__":
         qml.PauliX(wires=0)
 
         qfunc_adder(m, wires)
-        return qml.state()
+        return qml.sample()
 
-    x = test_circuit()
     output = test_circuit()
     print(*output, sep=",")
