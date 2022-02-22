@@ -18,8 +18,15 @@ def prepare_entangled(alpha, beta):
     """
 
     # QHACK #
+    norm = np.sqrt(np.abs(alpha) ** 2 + np.abs(beta) ** 2)
+    a = alpha / norm
 
+    phi = np.arccos(a)
+
+    qml.RY(2 * phi, wires=0)
+    qml.CNOT(wires=[0, 1])
     # QHACK #
+
 
 @qml.qnode(dev)
 def chsh_circuit(theta_A0, theta_A1, theta_B0, theta_B1, x, y, alpha, beta):
@@ -43,10 +50,22 @@ def chsh_circuit(theta_A0, theta_A1, theta_B0, theta_B1, x, y, alpha, beta):
 
     # QHACK #
 
+    # Alice's measurement
+    if x == 0:
+        qml.RY(theta_A0, wires=0).inv()
+    else:
+        qml.RY(theta_A1, wires=0).inv()
+
+    # Bob's measurement
+    if y == 0:
+        qml.RY(theta_B0, wires=1).inv()
+    else:
+        qml.RY(theta_B1, wires=1).inv()
+
     # QHACK #
 
     return qml.probs(wires=[0, 1])
-    
+
 
 def winning_prob(params, alpha, beta):
     """Define a function that returns the probability of Alice and Bob winning the game.
@@ -61,9 +80,27 @@ def winning_prob(params, alpha, beta):
     """
 
     # QHACK #
+    p = 0
 
+    def probs(x, y):
+        return chsh_circuit(
+            params[0], params[1], params[2], params[3], x, y, alpha, beta
+        )
+
+    # P(succes) = P(X=0)P(Y=0|X=0) * (P(A=0,B=0|X=0,Y=0) + P(A=1,B=1|X=0,Y=0))
+    #           + P(X=0)P(Y=1|X=0) * (P(A=0,B=0|X=1,Y=1) + P(A=1,B=1|X=1,Y=1))
+    #           + P(X=1)P(Y=0|X=1) * (P(A=0,B=0|X=1,Y=0) + P(A=1,B=1|X=1,Y=0))
+    #           + P(X=1)P(Y=1|X=1) * (P(A=1,B=0|X=1,Y=1) + P(A=0,B=1|X=1,Y=1))
+
+    p = 0
+    p += 0.5 ** 2 * (probs(0, 0)[0] + probs(0, 0)[3])
+    p += 0.5 ** 2 * (probs(0, 1)[0] + probs(0, 1)[3])
+    p += 0.5 ** 2 * (probs(1, 0)[0] + probs(1, 0)[3])
+    p += 0.5 ** 2 * (probs(1, 1)[1] + probs(1, 1)[2])
+
+    return p
     # QHACK #
-    
+
 
 def optimize(alpha, beta):
     """Define a function that optimizes theta_A0, theta_A1, theta_B0, theta_B1 to maximize the probability of winning the game
@@ -78,31 +115,30 @@ def optimize(alpha, beta):
 
     def cost(params):
         """Define a cost function that only depends on params, given alpha and beta fixed"""
+        return -winning_prob(params, alpha, beta)
 
     # QHACK #
 
-    #Initialize parameters, choose an optimization method and number of steps
-    init_params = 
-    opt =
-    steps =
+    # Initialize parameters, choose an optimization method and number of steps
+    init_params = np.random.random(4) * 2 * np.pi
+    opt = qml.NesterovMomentumOptimizer()
+    steps = 500
 
     # QHACK #
-    
+
     # set the initial parameter values
     params = init_params
-
     for i in range(steps):
-        # update the circuit parameters 
+        # update the circuit parameters
         # QHACK #
 
-        params = 
-
+        params = opt.step(cost, params)
         # QHACK #
 
     return winning_prob(params, alpha, beta)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     inputs = sys.stdin.read().split(",")
     output = optimize(float(inputs[0]), float(inputs[1]))
     print(f"{output}")
