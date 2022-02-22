@@ -3,6 +3,7 @@
 import sys
 from pennylane import numpy as np
 import pennylane as qml
+import matplotlib.pyplot as plt
 
 
 def qfunc_adder(m, wires):
@@ -18,13 +19,16 @@ def qfunc_adder(m, wires):
     # QHACK #
     N = len(wires)
     m_binary = [int(x) for x in np.binary_repr(m)]  # binary representation of m
+    m_binary = [0] * (N - len(m_binary)) + m_binary  # pad with zeros
+
+    print("m_binary: ", m_binary)
 
     for i, x in enumerate(m_binary):
-        qml.RZ((np.pi / 2 ** N) * x * 2 ** (N - i), wires=wires[i])
-        # qml.RZ( np.pi / 2 * x) for N = 1, i = 0
+        phase = (np.pi / 2 ** i) * x
+        print(i, x, phase / (2 * np.pi))
+        qml.RZ(phase, wires=0)
 
     # QHACK #
-
     qml.QFT(wires=wires).inv()
 
 
@@ -43,7 +47,8 @@ if __name__ == "__main__":
         qml.PauliX(wires=0)
 
         qfunc_adder(m, wires)
-        return qml.sample()
+        return qml.state()
 
+    x = test_circuit()
     output = test_circuit()
     print(*output, sep=",")
