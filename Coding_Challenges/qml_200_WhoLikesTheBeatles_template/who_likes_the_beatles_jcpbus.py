@@ -24,8 +24,9 @@ def distance(A, B):
     dev = qml.device("default.qubit", wires=3)
 
     def embed(P, wire):
-        qml.RX(2 * np.pi * P[0] / 100, wires=wire)
-        qml.RY(2 * np.pi * P[1] / 500, wires=wire)
+        """Function that embeds a 2-feature vector P into a quantum state on wire."""
+        qml.RX(np.pi * P[0] / 50, wires=wire)
+        qml.RY(np.pi * P[1] / 200, wires=wire)
 
     @qml.qnode(dev)
     def swap_test(A, B):
@@ -33,21 +34,20 @@ def distance(A, B):
         This function calculates P(Qubit 2 = 0), where qubit 2 is the ancillary
         swap test qubit.
 
-
         P(Qubit 2 = 0) = 1/2 + 1/2 |<psi_A|psi_B>|^2
         """
+        control_wire = 0
 
-        embed(A, wire=0)
-        embed(B, wire=1)
+        # embed(A, wire=1)
+        # embed(B, wire=2)
+        qml.AmplitudeEmbedding(A, wires=[1], normalize=True)
+        qml.AmplitudeEmbedding(B, wires=[2], normalize=True)
 
-        print(A, B)
+        qml.Hadamard(wires=control_wire)
+        qml.CSWAP(wires=[control_wire, 1, 2])
+        qml.Hadamard(wires=control_wire)
 
-        qml.Hadamard(wires=2)
-        qml.ControlledQubitUnitary(
-            qml.SWAP.matrix, control_wires=2, wires=[0, 1]
-        )
-        qml.Hadamard(wires=2)
-        return qml.probs(wires=2)
+        return qml.probs(wires=control_wire)
 
     def overlap(A, B):
         """
@@ -59,14 +59,10 @@ def distance(A, B):
 
         |<psi_A|psi_B>| = sqrt(2 * P(Qubit 2 = 0) - 1)
         """
-        p_0 = swap_test(A, B)[0]
-        return np.sqrt(2 * p_0 - 1)
+        p_1 = swap_test(A, B)[1]
+        return np.sqrt(1 - 2 * p_1)
 
     return np.sqrt(2 * (1 - overlap(A, B)))  # distance
-
-    # QHACK #
-
-    return distance(A, B)
 
     # QHACK #
 
