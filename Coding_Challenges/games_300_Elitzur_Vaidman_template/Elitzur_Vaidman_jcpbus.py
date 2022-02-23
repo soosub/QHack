@@ -38,8 +38,7 @@ def bomb_tester(angle):
     """
 
     # QHACK #
-    qml.RY(angle, wires=0)
-    qml.RY(angle, wires=0)
+    qml.RY(2 * angle, wires=0)
     # QHACK #
 
     return qml.sample(qml.PauliZ(0))
@@ -59,9 +58,10 @@ def simulate(angle, n):
     bombs_no_explosion = 0
 
     # QHACK #
-    for i in range(n):
-        bombs_no_explosion += (1 - bomb_tester(angle)) / 2
-    bombs_no_explosion += bomb_tester(angle)
+    for i in range(10000):
+        for j in range(n):
+            bombs_no_explosion += (1 - bomb_tester(angle)) / 2
+        bombs_no_explosion += bomb_tester(angle)
 
     return n / bombs_no_explosion
     # QHACK #
