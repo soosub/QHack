@@ -17,7 +17,7 @@ def deutsch_jozsa(fs):
     """
 
     # QHACK #
-    wires = range(5)
+    wires = range(7)
     dev = qml.device("default.qubit", wires=wires, shots=1)
 
     def deutsch_jozsa_basic(f):
@@ -31,6 +31,8 @@ def deutsch_jozsa(fs):
         for w in [0, 1]:
             qml.Hadamard(w)
 
+        qml.Toffoli(wires=[0, 1, 3])
+
     U = qml.transforms.get_unitary_matrix(deutsch_jozsa_basic)
 
     def binary_string(x):
@@ -43,27 +45,23 @@ def deutsch_jozsa(fs):
     # global Deutsch Jozsa
     @qml.qnode(dev)
     def deutsch_jozsa_new(fs):
-        qml.PauliX(wires=wires[2])
+        qml.PauliX(wires=5)
 
-        for w in [0, 1, 2]:
+        for w in [3, 4, 5]:
             qml.Hadamard(w)
 
         for i, f in enumerate(fs):
             qml.ControlledQubitUnitary(
                 U(f),
-                wires=[3, 4, 2],
-                control_wires=[0, 1],
+                wires=[0, 1, 2, 5],
+                control_wires=[3, 4],
                 control_values=binary_string(i),
             )
 
-        for w in [0, 1]:
+        for w in [3, 4]:
             qml.Hadamard(w)
 
-        return qml.sample(wires=[0, 1])
-
-    qnode = qml.QNode(deutsch_jozsa_new, dev)
-    qnode(fs)
-    print(qml.draw(qnode))(fs)
+        return qml.sample(wires=[3, 4])
 
     sample = deutsch_jozsa_new(fs)
 
