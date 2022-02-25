@@ -46,6 +46,8 @@ def deutsch_jozsa(fs):
         # pad with zeros to length 2
         x_bin = x_bin.zfill(2)
 
+        return x_bin
+
     # global Deutsch Jozsa
     @qml.qnode(dev)
     def deutsch_jozsa_new(fs):
@@ -55,11 +57,14 @@ def deutsch_jozsa(fs):
             qml.Hadamard(w)
 
         for i, f in enumerate(fs):
+            control_values = binary_string(i)
+            print(control_values)
+
             qml.ControlledQubitUnitary(
                 U(f),
                 wires=[0, 1, 2, 5],
                 control_wires=[3, 4],
-                control_values=binary_string(i),
+                control_values=control_values,
             )
 
         for w in [3, 4]:
