@@ -62,7 +62,12 @@ def deutsch_jozsa(fs):
         for w in [3, 4, 0, 1]:
             qml.Hadamard(w)
 
-        qml.Toffoli(wires=[3, 4, 5])
+        qml.ControlledQubitUnitary(
+            qml.PauliX.matrix,
+            wires=[5],
+            control_wires=[3, 4],
+            control_values="00",
+        )
 
         return qml.sample(wires=[0, 1])
 
