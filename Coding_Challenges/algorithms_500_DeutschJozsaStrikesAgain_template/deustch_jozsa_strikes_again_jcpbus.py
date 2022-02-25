@@ -18,7 +18,7 @@ def deutsch_jozsa(fs):
 
     # QHACK #
     wires = range(6)
-    dev = qml.device("default.qubit", wires=wires)
+    dev = qml.device("default.qubit", wires=wires, shots=1)
 
     def binary_string(x):
         # converts a number to a binary string
@@ -29,9 +29,16 @@ def deutsch_jozsa(fs):
 
         return x_bin
 
-    def U(f):
-        get_matrix = qml.transforms.get_unitary_matrix(f)
-        return get_matrix(wires=[0, 1, 2])
+    def unitary_matrix(f):
+        wires = range(3)
+
+        def f_extended(f):
+            f(wires=wires)
+            for w in wires:
+                qml.Identity(wires=w)
+
+        get_matrix = qml.transforms.get_unitary_matrix(f_extended)
+        return get_matrix(f)
 
     # global Deutsch Jozsa
     @qml.qnode(dev)
@@ -44,13 +51,9 @@ def deutsch_jozsa(fs):
 
         for i, f in enumerate(fs):
             control_values = binary_string(i)
-            print(control_values)
-
-            U_f = U(f)
-            print(U(f))
 
             qml.ControlledQubitUnitary(
-                U_f,
+                unitary_matrix(f),
                 wires=[2, 3, 4],
                 control_wires=[0, 1],
                 control_values=control_values,
@@ -61,18 +64,15 @@ def deutsch_jozsa(fs):
 
         qml.Toffoli(wires=[3, 4, 5])
 
-        return qml.probs(wires=[0, 1])
-        # return qml.sample(wires=[0, 1])
+        return qml.sample(wires=[0, 1])
 
     sample = deutsch_jozsa_new(fs)
 
-    print(sample)
-
-    # if sum(sample) == 0:
-    #     return "4 same"
-    # else:
-    #     return "2 and 2"
-    # # QHACK #
+    if sum(sample) == 0:
+        return "4 same"
+    else:
+        return "2 and 2"
+    # QHACK #
 
 
 if __name__ == "__main__":
