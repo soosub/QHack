@@ -18,20 +18,24 @@ def deutsch_jozsa(fs):
 
     # QHACK #
     wires = range(7)
-    dev = qml.device("default.qubit", wires=wires, shots=1)
+    dev = qml.device("default.qubit", wires=wires)
 
     def deutsch_jozsa_basic(f):
         qml.PauliX(wires=2)
 
-        for w in range(3):
+        for w in [0, 1, 2]:
             qml.Hadamard(w)
 
-        f(wires)
+        f(wires=[0, 1, 2])
 
         for w in [0, 1]:
             qml.Hadamard(w)
+            qml.PauliX(w)
 
         qml.Toffoli(wires=[0, 1, 3])
+
+        for w in [0, 1]:
+            qml.PauliX(w)
 
     U = qml.transforms.get_unitary_matrix(deutsch_jozsa_basic)
 
@@ -61,15 +65,18 @@ def deutsch_jozsa(fs):
         for w in [3, 4]:
             qml.Hadamard(w)
 
-        return qml.sample(wires=[3, 4])
+        return qml.probs(wires=[3, 4])
+        # return qml.sample(wires=[3, 4])
 
     sample = deutsch_jozsa_new(fs)
 
-    if sum(sample) == 0:
-        return "4 same"
-    else:
-        return "2 and 2"
-    # QHACK #
+    print(sample)
+
+    # if sum(sample) == 0:
+    #     return "4 same"
+    # else:
+    #     return "2 and 2"
+    # # QHACK #
 
 
 if __name__ == "__main__":
