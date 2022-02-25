@@ -54,7 +54,7 @@ def deutsch_jozsa(fs):
 
             qml.ControlledQubitUnitary(
                 unitary_matrix(f),
-                wires=[2, 3, 4],
+                wires=[3, 4, 2],
                 control_wires=[0, 1],
                 control_values=control_values,
             )
